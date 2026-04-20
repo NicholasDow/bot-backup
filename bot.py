@@ -7,6 +7,9 @@ import pickle
 #import googletrans
 import urllib.request
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv
+
+load_dotenv()
 
 with open("pickled_jokes.txt","rb") as fp:
     jokes = pickle.load(fp)
@@ -56,14 +59,21 @@ finra = {' 3 ': 'National Commodities Futures Exam*',
 ' 51 ': 'Municipal Fund Securities Limited Principal',
 ' 53 ': 'Municipal Securities Principal Exam'}
 
-client = discord.Client()
+intents = discord.Intents.default()
+intents.message_content = True
+intents.members = True
+client = discord.Client(intents=intents)
 
 first_word = ['purple','sexy', 'pickle', 'cat', 'dog', 'bean', 'burrito', 'italian', 'suasage', 'rhinoceros', 'cheese','Grigorii','Rasputin','dank','shotgun','wang','fucking','fuck','shit','shit for brains','boot','boot-licking','shitty','max','I want to die, ']
 second_word = ['wolf', 'platypus', 'cat', 'rick', 'bob', 'steve', 'hamster', 'koala','cheetah', 'dick', 'prawn', 'panther', 'cheese', 'squirrel','Grigorii','Rasputin','penis','shotgun','wang','rick','chicken','addiction','max', 'pokemon', 'dinkel','dingleberg','dongbomp','woop','whip','fwomp','koopa','troopa','dick spaget','yankee','whore','slut']
 
 @client.event
 async def on_ready():
-    print(f'{client.user.name} has connected to Discord!')
+    user = client.user
+    if user is None:
+        print('Discord client connected, but user is unavailable.')
+        return
+    print(f'{user.name} has connected to Discord!')
 
 @client.event
 async def on_member_join(member):
@@ -82,6 +92,8 @@ async def on_message(message):
         return
     x = str.lower(message.content)
     y = message.channel.send
+
+    print(x, y)
 
     with open("stats.txt","a") as f:
         f.write(f"{int(time.time())}\n")
@@ -176,4 +188,8 @@ async def on_member_update(before, after):
         for channel in after.guild.channels:
             if str(channel) == "general":
                 await channel.send(f"{before.nick} has changed their name to {after.nick}")
-client.run(str(os.environ.get('TOKEN')))
+token = os.environ.get("TOKEN")
+if not token:
+    raise RuntimeError("TOKEN is not set. Add it to your .env file before running the bot.")
+
+client.run(token)
