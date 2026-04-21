@@ -1,2 +1,8 @@
 discord
 bs4
+fastapi
+uvicorn[standard]
+sqlalchemy
+aiohttp
+python-dotenv
+pytest
